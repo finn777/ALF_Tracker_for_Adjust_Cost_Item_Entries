@@ -1,0 +1,24 @@
+{
+  "id": "296984ca-b1c9-493f-b059-5fd1838b4502",
+  "name": "ALF_Tracker_for_Adjust Cost - Item Entries",
+  "publisher": "Alexey Finogenov",
+  "brief": "",
+  "description": "",
+  "version": "1.0.0.0",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "capabilities": [],
+  "dependencies": [],
+  "screenshots": [],
+  "platform": "12.0.0.0",
+  "application": "12.0.0.0",
+  "target": "Extension",
+  "showMyCode": true,
+  "idRange": {
+    "from": 50100,
+    "to": 50149
+  }
+}

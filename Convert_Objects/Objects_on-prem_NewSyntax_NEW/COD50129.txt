@@ -1,0 +1,242 @@
+OBJECT Codeunit 50129 ALF_Tracker_for_Adjust_AddData
+{
+  OBJECT-PROPERTIES
+  {
+    Date=20180920D;
+    Time=111836.113T;
+    Modified=true;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+            AddData(5);
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      VendorNoArray@1170000007 : ARRAY [5] OF Code[20];
+      CustomerNoArray@1170000011 : ARRAY [5] OF Code[20];
+      ItemNoArray@1170000012 : ARRAY [20] OF Code[20];
+      LocationCodeArray@1170000013 : ARRAY [3] OF Code[10];
+      I_DOC@1170000000 : Integer;
+      PermissionManager@1170000001 : Codeunit "Permission Manager";
+
+    LOCAL PROCEDURE GetNextVendorNo@1170000000() NextNo : Code[20];
+    VAR
+      N@1170000000 : Integer;
+    BEGIN
+      RANDOMIZE;
+      N := RANDOM(5);
+      exit(VendorNoArray[N]);
+    END;
+
+    LOCAL PROCEDURE GetNextCustomerNo@1170000001() NextNo : Code[20];
+    VAR
+      N@1170000000 : Integer;
+    BEGIN
+      RANDOMIZE;
+      N := RANDOM(5);
+      exit(CustomerNoArray[N]);
+    END;
+
+    LOCAL PROCEDURE GetNextItemNo@1170000002() NextNo : Code[20];
+    VAR
+      N@1170000000 : Integer;
+    BEGIN
+      RANDOMIZE;
+      N := RANDOM(20);
+      exit(ItemNoArray[N]);
+    END;
+
+    LOCAL PROCEDURE GetNextLocationCode@1170000003() NextCode : Code[10];
+    VAR
+      N@1170000000 : Integer;
+    BEGIN
+      RANDOMIZE;
+      N := RANDOM(3);
+      exit(LocationCodeArray[N]);
+    END;
+
+    LOCAL PROCEDURE CreatePurchaseDoc@1170000004();
+    VAR
+      PurchaseHeader@1170000001 : Record "Purchase Header";
+      PurchaseLine@1170000000 : Record "Purchase Line";
+      I_LINE@1170000003 : Integer;
+      NextLineNo@1170000005 : Integer;
+      PurchasePost@1170000004 : Codeunit "Purch.-Post";
+      N@1170000002 : Integer;
+    BEGIN
+        // Create Purchase Header
+        with PurchaseHeader do begin
+          RESET;
+          INIT;
+          "Document Type" := "Document Type"::Order;
+          INSERT(true);
+          COMMIT;
+          VALIDATE("Buy-from Vendor No.",GetNextVendorNo);
+          VALIDATE("Order Date",WORKDATE);
+          VALIDATE("Posting Date",WORKDATE);
+          VALIDATE("Expected Receipt Date",WORKDATE);
+          "Vendor Order No." := "No.";
+          "Vendor Shipment No." := "No.";
+          "Vendor Invoice No." := "No."+'_'+FORMAT(RANDOM(1000));
+          MODIFY(true);
+          COMMIT;
+        end;
+
+        // Create Purchase Lines
+        NextLineNo := 0;
+        with PurchaseLine do begin
+          for I_LINE := 1 to 10 do begin
+            RESET;
+            INIT;
+            "Document Type" := "Document Type"::Order;
+            "Document No." := PurchaseHeader."No.";
+            NextLineNo := NextLineNo + 10000;
+            "Line No." := NextLineNo;
+            INSERT(true);
+            COMMIT;
+            Type := Type::Item;
+            VALIDATE("No.",GetNextItemNo);
+            RANDOMIZE;
+            N := RANDOM(100);
+            VALIDATE(Quantity,N);
+            RANDOMIZE;
+            N := RANDOM(1000);
+            VALIDATE("Direct Unit Cost",N);
+            MODIFY(true);
+            COMMIT;
+          end;
+        end;
+
+        CODEUNIT.RUN(CODEUNIT::"Release Purchase Document",PurchaseHeader);
+
+        // Post Purchase document (Order)
+        with PurchaseHeader do begin
+          Receive := true;
+          Invoice := true;
+        end;
+        PurchasePost.RUN(PurchaseHeader);
+    END;
+
+    LOCAL PROCEDURE CreateSalesDoc@1170000005();
+    VAR
+      SalesHeader@1170000001 : Record "Sales Header";
+      SalesLine@1170000000 : Record "Sales Line";
+      I_LINE@1170000003 : Integer;
+      NextLineNo@1170000005 : Integer;
+      SalesPost@1170000004 : Codeunit "Sales-Post";
+      N@1170000002 : Integer;
+    BEGIN
+        // Create Sales Header
+        with SalesHeader do begin
+          RESET;
+          INIT;
+          "Document Type" := "Document Type"::Order;
+          INSERT(true);
+          COMMIT;
+          VALIDATE("Sell-to Customer No.",GetNextCustomerNo);
+          VALIDATE("Order Date",WORKDATE);
+          VALIDATE("Posting Date",WORKDATE);
+          VALIDATE("Shipment Date",WORKDATE);
+          MODIFY(true);
+          COMMIT;
+        end;
+
+        // Create Sales Lines
+        NextLineNo := 0;
+        with SalesLine do begin
+          for I_LINE := 1 to 10 do begin
+            RESET;
+            INIT;
+            "Document Type" := "Document Type"::Order;
+            "Document No." := SalesHeader."No.";
+            NextLineNo := NextLineNo + 10000;
+            "Line No." := NextLineNo;
+            INSERT(true);
+            COMMIT;
+            Type := Type::Item;
+            VALIDATE("No.",GetNextItemNo);
+            RANDOMIZE;
+            N := RANDOM(100);
+            VALIDATE(Quantity,N);
+            MODIFY(true);
+            COMMIT;
+          end;
+        end;
+
+        CODEUNIT.RUN(CODEUNIT::"Release Sales Document",SalesHeader);
+
+        // Post Sales document (Order)
+        with SalesHeader do begin
+          Ship := true;
+          Invoice := true;
+        end;
+        SalesPost.RUN(SalesHeader);
+    END;
+
+    [External]
+    PROCEDURE AddData@1170000006(DOCNUMBER@1170000000 : Integer);
+    BEGIN
+      if not PermissionManager.IsSandboxConfiguration then begin
+        MESSAGE('This feature (add data) for sandbox only.');
+        exit;
+      end;
+
+      // Used such master records, based on CRONUS US demo data
+      VendorNoArray[1] := '10000';
+      VendorNoArray[2] := '20000';
+      VendorNoArray[3] := '30000';
+      VendorNoArray[4] := '40000';
+      VendorNoArray[5] := '50000';
+
+      CustomerNoArray[1] := '10000';
+      CustomerNoArray[2] := '20000';
+      CustomerNoArray[3] := '30000';
+      CustomerNoArray[4] := '40000';
+      CustomerNoArray[5] := '50000';
+
+      ItemNoArray[1] := '1896-S';
+      ItemNoArray[2] := '1900-S';
+      ItemNoArray[3] := '1906-S';
+      ItemNoArray[4] := '1908-S';
+      ItemNoArray[5] := '1920-S';
+      ItemNoArray[6] := '1925-W';
+      ItemNoArray[7] := '1928-S';
+      ItemNoArray[8] := '1929-W';
+      ItemNoArray[9] := '1936-S';
+      ItemNoArray[10] := '1953-W';
+      ItemNoArray[11] := '1960-S';
+      ItemNoArray[12] := '1964-S';
+      ItemNoArray[13] := '1965-W';
+      ItemNoArray[14] := '1968-S';
+      ItemNoArray[15] := '1969-W';
+      ItemNoArray[16] := '1972-S';
+      ItemNoArray[17] := '1980-S';
+      ItemNoArray[18] := '1988-S';
+      ItemNoArray[19] := '1996-S';
+
+      ItemNoArray[20] := '2000-S';
+
+      LocationCodeArray[1] := 'EAST';
+      LocationCodeArray[2] := 'MAIN';
+      LocationCodeArray[3] := 'WEST';
+
+      for I_DOC := 1 to DOCNUMBER do begin
+        CreateSalesDoc;
+      end;
+
+      for I_DOC := 1 to DOCNUMBER do begin
+        CreatePurchaseDoc;
+      end;
+      MESSAGE('Created and Posted %1 Sales Orders and %1 Purchase Orders.',DOCNUMBER);
+    END;
+
+    BEGIN
+    END.
+  }
+}
+
