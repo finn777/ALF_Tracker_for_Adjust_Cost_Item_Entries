@@ -14,6 +14,7 @@ codeunit 50128 ALF_Tracker_for_Adjust_Code
         Log.Insert();
         Commit();
     end;
+    /*
     [EventSubscriber(ObjectType::Report, Report::"Adjust Cost - Item Entries", 'OnAfterPreReport', '', true, true)] 
     local procedure OnAfterPreReportProcedure()    
     begin
@@ -28,6 +29,7 @@ codeunit 50128 ALF_Tracker_for_Adjust_Code
             Commit();
         END;
     end;
+    */
     procedure ClearALFTrackerLog()
     begin
         Log.DeleteAll();
