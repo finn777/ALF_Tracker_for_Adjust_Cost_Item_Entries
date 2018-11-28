@@ -4,7 +4,7 @@
   "publisher": "Alexey Finogenov",
   "brief": "",
   "description": "The extension add possibility to track 'Adjust Cost - Item Entries' batch job (Elapsed Time, used filters). + feature that add some sales orders/purchase orders (sandbox only, test purpose). New options add to 'Inventory Setup'.",
-  "version": "1.0.24630.0",
+  "version": "1.1.26046.0",
   "privacyStatement": "",
   "EULA": "",
   "help": "https://blogs.technet.microsoft.com/alexef/2018/09/27/app-extension-to-track-adjust-cost-item-entries-batch-job-elapsed-time-used-filters/",
@@ -14,7 +14,7 @@
   "dependencies": [],
   "screenshots": [],
   "platform": "13.0.0.0",
-  "application": "13.0.0.0",
+  "application": "13.1.0.0",
   "target": "Extension",
   "showMyCode": true,
   "idRange": {
