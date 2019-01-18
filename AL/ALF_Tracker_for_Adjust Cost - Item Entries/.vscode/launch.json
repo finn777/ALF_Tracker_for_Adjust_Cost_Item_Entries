@@ -14,7 +14,7 @@
             //"authentication": "UserPassword",            
             //"startupObjectId": 22,
             //"startupObjectType": "Page",
-            "schemaUpdateMode": "Recreate",
+            //"schemaUpdateMode": "Recreate",
         }
     ]
 }
