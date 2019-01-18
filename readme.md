@@ -1,4 +1,5 @@
 ## ALF_Tracker_for_Adjust_Cost_Item_Entries
+![](media/ALFlogo.png)
 > Small extension for Dynamics 365 Business Central.
 > App/Extension add possibility to track 'Adjust Cost - Item Entries' batch job (Elapsed Time, used filters).
 > Plus the feature that add some sales orders/purchase orders (work for sandbox only, for test purpose).
